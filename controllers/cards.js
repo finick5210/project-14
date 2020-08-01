@@ -30,7 +30,7 @@ module.exports.deleteCard = (req, res) => {
         return;
         // eslint-disable-next-line no-underscore-dangle
       } if (card.owner.toString() !== req.user._id) {
-        res.status('404');
+        res.status('401');
         res.send({ message: 'Недостаточно прав для удаления карточки' });
         return;
       }
