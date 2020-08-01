@@ -22,14 +22,23 @@ module.exports.createCard = (req, res) => {
 };
 
 module.exports.deleteCard = (req, res) => {
-  Card.findByIdAndRemove(req.params.id)
+  Card.findById(req.params.id)
     .then((card) => {
-      if (card === null) {
+      if (!card) {
         res.status('404');
         res.send({ message: 'Нет карточки с таким id' });
         return;
+        // eslint-disable-next-line no-underscore-dangle
+      } if (card.owner.toString() !== req.user._id) {
+        res.status('404');
+        res.send({ message: 'Недостаточно прав для удаления карточки' });
+        return;
       }
-      res.send({ data: card });
+      // eslint-disable-next-line no-underscore-dangle
+      Card.deleteOne({ _id: card._id })
+        .then(() => {
+          res.send({ data: card });
+        });
     })
     .catch((err) => res.status(500).send({ message: err.message }));
 };

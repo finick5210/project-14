@@ -13,6 +13,16 @@ module.exports.createUser = (req, res) => {
     name, about, avatar, email, password,
   } = req.body;
 
+  if (!password || password.trim().length === 0) {
+    res.status(400).send({ message: 'Password should not be empty' });
+    return;
+  }
+
+  if (password.length < 4 || password.length > 30) {
+    res.status(400).send({ message: 'Password must be longer than 4 characters and less then 30' });
+    return;
+  }
+
   bcrypt.hash(password, 10)
     .then((hash) => User.create({
       name,
@@ -21,7 +31,12 @@ module.exports.createUser = (req, res) => {
       email,
       password: hash,
     }))
-    .then((user) => res.send({ data: user }))
+    .then(() => res.send({
+      name,
+      about,
+      avatar,
+      email,
+    }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(400).send({ message: err.message });
@@ -55,7 +70,7 @@ module.exports.login = (req, res) => {
       const token = jwt.sign(
         // eslint-disable-next-line no-underscore-dangle
         { _id: user._id },
-        JWT_SECRET,
+        JWT_SECRET || 'dev_secret',
         { expiresIn: '7d' },
       );
 

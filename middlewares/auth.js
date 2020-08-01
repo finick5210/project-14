@@ -15,7 +15,7 @@ module.exports = (req, res, next) => {
 
   try {
     const { JWT_SECRET } = process.env;
-    payload = jwt.verify(token, JWT_SECRET);
+    payload = jwt.verify(token, JWT_SECRET || 'dev_secret');
   } catch (err) {
     return res
       .status(401)
